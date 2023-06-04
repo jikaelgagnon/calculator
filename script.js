@@ -1,8 +1,8 @@
 let data = 
 {
-    operands: ["",""],
+    result: "",
+    operand: "",
     operator: "",
-    currentOperand: 0,
 }
 
 function add(a,b){ return a + b;}
@@ -16,6 +16,8 @@ function divide(a,b){ return a / b; }
 
 function operate(operator, a, b)
 {
+    a = +a;
+    b = +b;
     if (operator === "+") return add(a,b);
     else if (operator === "-") return subtract(a,b);
     else if (operator === "*") return multiply(a,b);
@@ -24,14 +26,27 @@ function operate(operator, a, b)
 
 function displayData()
 {
-    console.log(`Operand 0 ${data.operands[0]}`);
-    console.log(`Operand 1 ${data.operands[1]}`);
-    console.log(`Operator ${data.operator}`)
+    let display = [data.result, data.operand, data.operator];
+    console.table(display);
 }
 
-function switchOperand()
+function updateData(num)
 {
-    data.currentOperand = +!data.currentOperand;
+    if (!data.result) data.result += num; // First time data being input
+    else data.operand += num;
+}
+
+function performStoredOperation()
+{
+    if (data.operator) data.result = operate(data.operator, data.result, data.operand);
+    data.operand = "";
+}
+
+function updateDisplay()
+{
+    displayData();
+    const display = document.querySelector(".display");
+    display.textContent = (data.operand) ? data.operand : data.result;
 }
 
 function generateNumberButtons()
@@ -47,9 +62,8 @@ function generateNumberButtons()
         button.textContent = num;
         button.addEventListener("click", () => 
         {
-            data.operands[data.currentOperand] += num;
-            console.log(data.operands[data.currentOperand]);
-            displayData();
+            updateData(num);
+            updateDisplay()
         });
 
         if (num >= 7) row1.appendChild(button);
@@ -58,6 +72,7 @@ function generateNumberButtons()
         else row4.appendChild(button);
     }
 }
+
 
 function generateOperatorButtons() 
 {
@@ -69,12 +84,48 @@ function generateOperatorButtons()
         button.textContent = operators[index];
         button.addEventListener("click", () => 
         {
+            performStoredOperation();
+            updateDisplay();
             data.operator = operators[index];
-            switchOperand();
-            displayData();
         })
         rows[index].appendChild(button);  
     }
 }
-generateNumberButtons();
-generateOperatorButtons();
+
+function generateEqualsButton()
+{
+    const row4 = document.querySelector(".row-4");
+    const equalsButton = document.createElement("button");
+    equalsButton.textContent = "=";
+    equalsButton.addEventListener("click", () => 
+    {
+        performStoredOperation();
+        updateDisplay();
+    })
+    row4.appendChild(equalsButton);
+}
+
+function generateClearButton()
+{
+    const row4 = document.querySelector(".row-4");
+    const clearButton = document.createElement("button");
+    clearButton.textContent = "Clear";
+    clearButton.addEventListener("click", () => 
+    {
+        data.result = "";
+        data.operand = "";
+        data.operator = "";
+        updateDisplay();
+    })
+    row4.appendChild(clearButton);
+}
+
+function main()
+{
+    generateNumberButtons();
+    generateOperatorButtons();
+    generateEqualsButton();
+    generateClearButton();
+}
+
+main();
