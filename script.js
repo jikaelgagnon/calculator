@@ -38,15 +38,14 @@ function updateData(num)
 
 function performStoredOperation()
 {
-    if (data.operator) data.result = operate(data.operator, data.result, data.operand);
+    if (data.operator) data.result = operate(data.operator, data.result, data.operand).toString();
     data.operand = "";
 }
 
 function updateDisplay()
 {
-    displayData();
     const display = document.querySelector(".display");
-    display.textContent = (data.operand) ? data.operand : data.result;
+    display.textContent = (data.operand) ? data.operand : (data.result) ? data.result : "0";
 }
 
 function generateNumberButtons()
@@ -59,10 +58,12 @@ function generateNumberButtons()
 
     for (let num = 0; num < 10; num++) {
         const button = document.createElement("button");
+        button.classList.add("number-button");
         button.textContent = num;
         button.addEventListener("click", () => 
         {
             updateData(num);
+            displayData();
             updateDisplay()
         });
 
@@ -81,12 +82,14 @@ function generateOperatorButtons()
     for (let index = 0; index < rows.length; index++) 
     {
         const button = document.createElement("button");
+        button.classList.add("operator-button");
         button.textContent = operators[index];
         button.addEventListener("click", () => 
         {
             performStoredOperation();
             updateDisplay();
             data.operator = operators[index];
+            displayData();
         })
         rows[index].appendChild(button);  
     }
@@ -97,9 +100,12 @@ function generateEqualsButton()
     const row4 = document.querySelector(".row-4");
     const equalsButton = document.createElement("button");
     equalsButton.textContent = "=";
+    equalsButton.classList.add("equals-button");
     equalsButton.addEventListener("click", () => 
     {
         performStoredOperation();
+        data.operator = '';
+        displayData();
         updateDisplay();
     })
     row4.appendChild(equalsButton);
@@ -109,23 +115,53 @@ function generateClearButton()
 {
     const row4 = document.querySelector(".row-4");
     const clearButton = document.createElement("button");
-    clearButton.textContent = "Clear";
+    clearButton.classList.add("clear-button");
+    clearButton.textContent = "C";
     clearButton.addEventListener("click", () => 
     {
         data.result = "";
         data.operand = "";
         data.operator = "";
+        const display = document.querySelector(".display");
         updateDisplay();
     })
     row4.appendChild(clearButton);
 }
 
+function addHoverEffects()
+{
+
+    const numberButtons = Array.from(document.querySelectorAll(".number-button"));
+    numberButtons.forEach((button) => {
+        button.addEventListener("mouseover", () => {button.style.backgroundColor = "ivory";});
+    });
+
+    const operatorButtons = Array.from(document.querySelectorAll(".operator-button"));
+    operatorButtons.forEach((button) => {
+        button.addEventListener("mouseover", () => {button.style.backgroundColor = "gold";});
+    });
+
+    const equalsButton = document.querySelector(".equals-button");
+    equalsButton.addEventListener("mouseover", () => {equalsButton.style.backgroundColor = "SpringGreen";});
+
+    const clearButton = document.querySelector(".clear-button");
+    clearButton.addEventListener("mouseover", () => {clearButton.style.backgroundColor = "tomato";});
+
+    const buttons = numberButtons.concat(operatorButtons, [equalsButton, clearButton]);
+    buttons.forEach((button) => 
+    {
+        button.addEventListener("mouseout", () => {button.style.backgroundColor = "lightgrey"})
+    })
+
+}
+
 function main()
 {
     generateNumberButtons();
-    generateOperatorButtons();
-    generateEqualsButton();
     generateClearButton();
+    generateEqualsButton();
+    generateOperatorButtons();
+    addHoverEffects();
 }
 
 main();
